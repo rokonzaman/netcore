@@ -8,7 +8,7 @@ pipeline {
  stages {
   stage('Checkout') {
    steps {
-    git credentialsId: 'github-credentials', url: 'https://github.com/rokonzaman/netcore.git', branch: 'master'
+    git credentialsId: 'github-credentials', url: 'https://github.com/rokonzaman/netcore.git', branch: '*'
    }
   }
  stage('Restore packages'){
