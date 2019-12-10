@@ -1,28 +1,40 @@
 pipeline {
- agent any
+ agent{
+     label "ansible"
+ }
  environment {
-  dotnet = '/usr/share/dotnet'
+  dotnet = '/usr/share/dotnet/sdk/2.2.402/'
  }
  stages {
   stage('Checkout') {
    steps {
-    git url: 'https://github.com/ratulbasak/netcore-api.git', branch: '*'
+    git credentialsId: 'github-credentials', url: 'https://github.com/rokonzaman/netcore.git', branch: 'master'
    }
   }
- stage('Restore PACKAGES') {
-   steps {
-    bat "nuget restore SolutionName.sln"
+ stage('Restore packages'){
+   steps{
+      sh "dotnet restore /home/node2/jenkins/workspace/coreapi/netcore-api.csproj.user"
    }
   }
-  stage('Clean') {
-   steps {
-    bat 'dotnet clean'
+  stage('Clean'){
+   steps{
+      sh "dotnet clean /home/node2/jenkins/workspace/coreapi/netcore-api.sln"
    }
   }
-  stage('Build') {
-   steps {
-    bat 'dotnet build --configuration Release'
+  stage('Build'){
+   steps{
+      sh "dotnet build /home/node2/jenkins/workspace/coreapi/netcore-api.sln"
    }
   }
+  stage('Test'){
+   steps{
+      sh "dotnet test /home/node2/jenkins/workspace/coreapi/netcore-api.sln"
+   }
   }
+  stage('Publish'){
+   steps{
+      sh "dotnet publish /home/node2/jenkins/workspace/coreapi/netcore-api.sln"
+   }
+  }
+ }
 }
