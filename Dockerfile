@@ -1,19 +1,14 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+WORKDIR /app
 
-WORKDIR /home/node2/jenkins/workspace/coreapi
-
-COPY netcore-api.sln .
-COPY /home/node2/jenkins/workspace/coreapi/api/netcore-api.csproj ./home/node2/jenkins/workspace/coreapi/api/netcore-api.csproj
-
+COPY *.csproj ./
 RUN dotnet restore
 
 COPY . ./
+RUN dotnet publish -c Release -o out
 
-RUN dotnet publish ./home/node2/jenkins/workspace/coreapi/api/netcore-api.csproj -c Release -o /app/
-
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.0 AS runtime
-
-COPY --from=build /app/ /app/
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
-
+COPY --from=build-env /app /app/out .
+EXPOSE 80
 ENTRYPOINT ["dotnet", "netcore-api.dll"]
